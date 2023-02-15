@@ -5,9 +5,12 @@ import com.alfeu.crud.angular.spring.repository.CourseRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @AllArgsConstructor
 @RestController
@@ -32,5 +35,17 @@ public class CourseController {
     @ResponseStatus(HttpStatus.CREATED)
     public Course createCurse(@RequestBody Course course){
         return courseRepository.save(course);
+    }
+
+    @PutMapping("/{id_course}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Course updateCourse(
+            @PathVariable("id_course") Long idCourse,
+            @RequestBody @Validated Course course) {
+        Course courseSaved = this.courseRepository.findById(idCourse)
+                .orElseThrow(NoSuchElementException::new);
+        courseSaved.setCategory(course.getCategory());
+        courseSaved.setName(course.getName());
+        return this.courseRepository.save(courseSaved);
     }
 }

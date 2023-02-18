@@ -39,13 +39,17 @@ public class CourseController {
 
     @PutMapping("/{id_course}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Course updateCourse(
+    public ResponseEntity<Course> update(
             @PathVariable("id_course") Long idCourse,
             @RequestBody @Validated Course course) {
-        Course courseSaved = this.courseRepository.findById(idCourse)
-                .orElseThrow(NoSuchElementException::new);
-        courseSaved.setCategory(course.getCategory());
-        courseSaved.setName(course.getName());
-        return this.courseRepository.save(courseSaved);
+        return courseRepository.findById(idCourse)
+                .map(recordFound -> {
+                    recordFound.setName(course.getName());
+                    recordFound.setCategory(course.getCategory());
+                    Course update = this.courseRepository.save(recordFound);
+                    return ResponseEntity.ok().body(recordFound);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
+
 }

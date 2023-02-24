@@ -6,17 +6,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/courses")
 public class CourseController {
-
     private CourseRepository courseRepository;
 
     @GetMapping
@@ -50,6 +48,16 @@ public class CourseController {
                     return ResponseEntity.ok().body(recordFound);
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id_course}")
+    public ResponseEntity<Void> delete(@PathVariable("id_course") Long idCourse) {
+        return this.courseRepository.findById(idCourse)
+                .map(found -> {
+                    courseRepository.deleteById(idCourse);
+                    return ResponseEntity.noContent().<Void>build();
+                })
+                .orElse(ResponseEntity.noContent().build());
     }
 
 }
